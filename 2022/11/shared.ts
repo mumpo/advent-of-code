@@ -2,6 +2,7 @@ export type Monkey = {
   items: number[];
   operation: (old: number) => number;
   chooseMonkey: (worryLevel: number) => number;
+  divisibleBy: number;
 };
 
 const operatorFns = {
@@ -53,15 +54,20 @@ export const parseMonkey = (fromStr: string): Monkey => {
     items,
     operation,
     chooseMonkey,
+    divisibleBy,
   };
 };
 
 const DEBUG = false;
 
-const round = (monkeys: Monkey[], inspectionCount: number[]) => {
+const round = (
+  monkeys: Monkey[],
+  worryFn: (level: number) => number,
+  inspectionCount: number[],
+) => {
   monkeys.forEach((monkey, monkeyIndex) => {
     monkey.items.forEach((item) => {
-      const worryLevel = Math.floor(monkey.operation(item) / 3);
+      const worryLevel = worryFn(monkey.operation(item));
       const passToMonkey = monkey.chooseMonkey(worryLevel);
 
       monkeys[passToMonkey].items.push(worryLevel);
@@ -75,11 +81,15 @@ const round = (monkeys: Monkey[], inspectionCount: number[]) => {
   });
 };
 
-export const getMonkeyBusiness = (monkeys: Monkey[], numRounds: number) => {
+export const getMonkeyBusiness = (
+  monkeys: Monkey[],
+  worryFn: (level: number) => number,
+  numRounds: number,
+) => {
   const inspectionCount: number[] = [];
 
   for (let i = 1; i <= numRounds; i++) {
-    round(monkeys, inspectionCount);
+    round(monkeys, worryFn, inspectionCount);
 
     if (DEBUG) {
       console.log(
